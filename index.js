@@ -11,7 +11,7 @@ monitor.start({
 });
 
 monitor.on('monitor', (event) => {
-	usage = 1 - (event.freemem / event.totalmem);
+	usage = event.loadavg[0];
 	console.log(usage);
 });
 
