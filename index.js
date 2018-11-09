@@ -11,8 +11,8 @@ monitor.start({
 });
 
 monitor.on('monitor', (event) => {
-	usage = event.loadavg[0];
-	console.log(usage);
+	usage = 1 - (event.freemem / event.totalmem);
+	console.log(usage, event);
 });
 
 const app = express();
