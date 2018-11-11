@@ -1,19 +1,25 @@
-const monitor = require('os-monitor');
+// const monitor = require('os-monitor');
+var spawn = require('child_process').spawn;
 const Telnet = require('telnet-client');
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const top = spawn('top', ['|', 'grep', 'liquidsoap'])
 
 let usage = 0;
 
-monitor.start({
-	delay: 3000
-});
+// monitor.start({
+// 	delay: 3000
+// });
 
-monitor.on('monitor', (event) => {
-	usage = 1 - (event.freemem / event.totalmem);
-	console.log(usage, event);
+// monitor.on('monitor', (event) => {
+// 	usage = 1 - (event.freemem / event.totalmem);
+// 	console.log(usage, event);
+// });
+
+top.stdout.on('data', function (data) {
+  console.log(data.toString());
 });
 
 const app = express();
