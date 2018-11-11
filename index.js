@@ -13,7 +13,7 @@ psList().then(data => {
 		return process.name = 'liquidsoap';
 	});
 
-	console.log(info);
+	usage = info.memory;
 });
 
 const app = express();
