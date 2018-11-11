@@ -16,10 +16,6 @@ psList().then(data => {
 	console.log(info);
 });
 
-top.stdout.on('data', function (data) {
-  console.log(data.toString());
-});
-
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
