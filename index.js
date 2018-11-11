@@ -6,22 +6,19 @@ const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-let usage = 0;
-
-psList().then(data => {
-	const info = data.find(process => {
-		return process.name = 'liquidsoap';
-	});
-
-	usage = info.memory;
-});
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
 app.get('/health', (req, res) => {
-	res.json({ usage });
+	psList().then(data => {
+		const info = data.find(process => {
+			return process.cmd = './liquidsoap transcoder.liq';
+		});
+	
+		res.json({ usage: info.memory });
+	});
 });
 
 app.post('/start', (req, res) => {
