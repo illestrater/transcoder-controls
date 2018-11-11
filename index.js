@@ -1,22 +1,20 @@
 // const monitor = require('os-monitor');
-var spawn = require('child_process').spawn;
+const psList = require('ps-list');
 const Telnet = require('telnet-client');
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const top = spawn('top', ['|', 'grep', 'liquidsoap'])
 
 let usage = 0;
 
-// monitor.start({
-// 	delay: 3000
-// });
+psList().then(data => {
+	const info = data.find(process => {
+		return process.name = 'liquidsoap';
+	});
 
-// monitor.on('monitor', (event) => {
-// 	usage = 1 - (event.freemem / event.totalmem);
-// 	console.log(usage, event);
-// });
+	console.log(info);
+});
 
 top.stdout.on('data', function (data) {
   console.log(data.toString());
