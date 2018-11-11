@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.get('/health', (req, res) => {
 	psList().then(data => {
 		const info = data.find(process => {
-			return process.cmd = './liquidsoap transcoder.liq';
+			return (process.cmd === './liquidsoap transcoder.liq' && name === 'liquidsoap');
 		});
 	
 		res.json({ usage: info.memory });
