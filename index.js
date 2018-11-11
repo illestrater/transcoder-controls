@@ -17,7 +17,7 @@ app.get('/health', (req, res) => {
 			return (process.cmd === './liquidsoap transcoder.liq' && process.name === 'liquidsoap');
 		});
 	
-		res.json({ usage: info.memory });
+		res.json({ usage: info ? info.memory : null });
 	});
 });
 
