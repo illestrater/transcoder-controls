@@ -82,7 +82,7 @@ function killLiquidsoap() {
 
 function getTimeLeft() {
 	if (drainingStart) {
-		return (TIME_UNTIL_DESTROY - Date.now() - drainingStart) / 1000;
+		return (TIME_UNTIL_DESTROY - (Date.now() - drainingStart)) / 1000;
 	} else {
 		return '0';
 	}
