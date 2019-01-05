@@ -37,16 +37,16 @@ app.get('/start_transcoder', (req, res) => {
 			res.json({ error: 'LIQUIDSOAP_EXISTS' });
 		} else {
 			const { spawn } = require( 'child_process' );
-			const kill = spawn( '/opt/transcoder-health-checker-/liquidsoap', [ 'transcoder.liq' ] );
-			kill.stdout.on( 'data', data => {
+			const start = spawn( '/opt/transcoder-health-checker/liquidsoap', [ 'transcoder.liq' ] );
+			start.stdout.on( 'data', data => {
 				console.log( `stdout: ${data}` );
 			} );
 			
-			kill.stderr.on( 'data', data => {
+			start.stderr.on( 'data', data => {
 					console.log( `stderr: ${data}` );
 			} );
 			
-			kill.on( 'close', code => {
+			start.on( 'close', code => {
 					console.log( `child process exited with code ${code}` );
 			} );
 			res.json({ success: 'LIQUIDSOAP_STARTED' });
