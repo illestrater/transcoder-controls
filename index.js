@@ -37,7 +37,7 @@ app.get('/start_liquidsoap', (req, res) => {
 			res.json({ error: 'LIQUIDSOAP_EXISTS' });
 		} else {
 			const { spawn } = require( 'child_process' );
-			const start = spawn( '/opt/transcoder-health-checker/liquidsoap', [ '/opt/transcoder-health/checker/transcoder.liq' ] );
+			const start = spawn( '/opt/transcoder-health-checker/liquidsoap', [ '/opt/transcoder-health-checker/transcoder.liq' ] );
 			start.stdout.on( 'data', data => {
 				console.log( `stdout: ${data}` );
 			} );
