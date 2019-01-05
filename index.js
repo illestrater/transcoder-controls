@@ -90,21 +90,23 @@ function getTimeLeft() {
 }
 
 app.get('/stop_liquidsoap', (req, res) => {
-	const info = data.find(process => {
-		return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
-	});
+	psList().then(data => {
+		const info = data.find(process => {
+			return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
+		});
 
-	if (!info) {
-		res.json({ error: 'LIQUIDSOAP UNAVAILABLE' });
-	} else if (!draining) {
-		drainingStart = Date.now();
-		draining = setTimeout(() => {
-			killLiquidsoap();
-		}, TIME_UNTIL_DESTROY);
-		res.json({ success: `DESTROYING IN ${ TIME_UNTIL_DESTROY } SECONDS` });
-	} else {
-		res.json({ success: `DESTROYING IN ${ getTimeLeft() } SECONDS` });
-	}
+		if (!info) {
+			res.json({ error: 'LIQUIDSOAP UNAVAILABLE' });
+		} else if (!draining) {
+			drainingStart = Date.now();
+			draining = setTimeout(() => {
+				killLiquidsoap();
+			}, TIME_UNTIL_DESTROY);
+			res.json({ success: `DESTROYING IN ${ TIME_UNTIL_DESTROY } SECONDS` });
+		} else {
+			res.json({ success: `DESTROYING IN ${ getTimeLeft() } SECONDS` });
+		}
+	});
 });
 
 app.get('/forcestop_liquidsoap', (req, res) => {
