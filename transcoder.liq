@@ -1,4 +1,5 @@
 set("server.telnet", true)
+set("init.allow_root", true)
 set("log.file.path","/opt/transcoder-health-checker/cue-transcoder.log")
 set("init.daemon", true)
 set("init.daemon.pidfile.path","/opt/transcoder-health-checker/process.pid")
