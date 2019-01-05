@@ -10,6 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const TIME_UNTIL_DESTROY = 60000 * 60 * 3;
+let drainingStart;
 let draining = false;
 
 app.get('/health', (req, res) => {
@@ -72,6 +73,7 @@ function killLiquidsoap() {
 
 			kill.on('close', code => {
 				console.log( `child process exited with code ${code}` );
+				drainingStart = null;
 				draining = false;
 			});
 		}
@@ -80,12 +82,13 @@ function killLiquidsoap() {
 
 app.get('/stop_liquidsoap', (req, res) => {
 	if (!draining) {
+		drainingStart = Date.now();
 		draining = setTimeout(() => {
 			killLiquidsoap();
 		}, TIME_UNTIL_DESTROY);
 		res.json({ success: `DESTROYING IN ${ TIME_UNTIL_DESTROY } SECONDS` });
 	} else {
-		const timeLeft = Math.ceil((draining._idleStart + draining._idleTimeout - Date.now()) / 1000);
+		const timeLeft = (Date.now() - drainingStart) / 1000;
 		res.json({ success: `DESTROYING IN ${ timeLeft } SECONDS` });
 	}
 });
@@ -95,7 +98,7 @@ app.get('/forcestop_liquidsoap', (req, res) => {
 });
 
 app.get('/time_til_destroy', (req, res) => {
-	const timeLeft = Math.ceil((draining._idleStart + draining._idleTimeout - Date.now()) / 1000);
+	const timeLeft = (Date.now() - drainingStart) / 1000;
 	res.json({ error: `DESTROYING IN ${ timeLeft } SECONDS` });
 });
 
@@ -123,7 +126,7 @@ app.post('/start', (req, res) => {
 			return res.status(409).json({ error });
 		});
 	} else {
-		const timeLeft = Math.ceil((draining._idleStart + draining._idleTimeout - Date.now()) / 1000);
+		const timeLeft = (Date.now() - drainingStart) / 1000;
 		res.json({ error: `DESTROYING IN ${ timeLeft } SECONDS` });
 	}
 });
