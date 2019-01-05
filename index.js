@@ -16,6 +16,8 @@ app.get('/health', (req, res) => {
 		const info = data.find(process => {
 			return (process.cmd === './liquidsoap transcoder.liq' && process.name === 'liquidsoap');
 		});
+
+		console.log(info);
 	
 		if (info) {
 			res.json({ usage: info ? info.memory : null });
