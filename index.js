@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.get('/health', (req, res) => {
 	psList().then(data => {
 		const info = data.find(process => {
-			return (process.cmd === './liquidsoap transcoder.liq' && process.name === 'liquidsoap');
+			return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
 		});
 
 		console.log(info);
@@ -57,7 +57,7 @@ app.get('/start_liquidsoap', (req, res) => {
 app.get('/stop_liquidsoap', (req, res) => {
 	psList().then(data => {
 		const info = data.find(process => {
-			return (process.cmd === './liquidsoap transcoder.liq' && process.name === 'liquidsoap');
+			return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
 		});
 
 		if (info) {
