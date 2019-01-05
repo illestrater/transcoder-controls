@@ -16,7 +16,7 @@ let draining = false;
 app.get('/health', (req, res) => {
 	psList().then(data => {
 		const info = data.find(process => {
-			return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
+			return (process.cmd === '/opt/transcoder-controls/liquidsoap /opt/transcoder-controls/transcoder.liq' && process.name === 'liquidsoap');
 		});
 	
 		if (info) {
@@ -30,14 +30,14 @@ app.get('/health', (req, res) => {
 app.get('/start_liquidsoap', (req, res) => {
 	psList().then(data => {
 		const info = data.find(process => {
-			return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
+			return (process.cmd === '/opt/transcoder-controls/liquidsoap /opt/transcoder-controls/transcoder.liq' && process.name === 'liquidsoap');
 		});
 
 		if (info) {
 			res.json({ error: 'LIQUIDSOAP_EXISTS' });
 		} else {
 			const { spawn } = require( 'child_process' );
-			const start = spawn( '/opt/transcoder-health-checker/liquidsoap', [ '/opt/transcoder-health-checker/transcoder.liq' ] );
+			const start = spawn( '/opt/transcoder-controls/liquidsoap', [ '/opt/transcoder-controls/transcoder.liq' ] );
 			start.stdout.on( 'data', data => {
 				console.log( `stdout: ${data}` );
 			} );
@@ -57,7 +57,7 @@ app.get('/start_liquidsoap', (req, res) => {
 function killLiquidsoap() {
 	psList().then(data => {
 		const info = data.find(process => {
-			return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
+			return (process.cmd === '/opt/transcoder-controls/liquidsoap /opt/transcoder-controls/transcoder.liq' && process.name === 'liquidsoap');
 		});
 
 		if (info) {
@@ -92,7 +92,7 @@ function getTimeLeft() {
 app.get('/stop_liquidsoap', (req, res) => {
 	psList().then(data => {
 		const info = data.find(process => {
-			return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
+			return (process.cmd === '/opt/transcoder-controls/liquidsoap /opt/transcoder-controls/transcoder.liq' && process.name === 'liquidsoap');
 		});
 
 		if (!info) {
