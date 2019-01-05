@@ -9,13 +9,14 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+const TIME_UNTIL_DESTROY = 60000 * 60 * 3;
+let draining = false;
+
 app.get('/health', (req, res) => {
 	psList().then(data => {
 		const info = data.find(process => {
 			return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
 		});
-
-		console.log(info);
 	
 		if (info) {
 			res.json({ usage: info ? info.memory : null });
@@ -52,7 +53,7 @@ app.get('/start_liquidsoap', (req, res) => {
 	});
 });
 
-app.get('/stop_liquidsoap', (req, res) => {
+function killLiquidsoap() {
 	psList().then(data => {
 		const info = data.find(process => {
 			return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
@@ -61,46 +62,70 @@ app.get('/stop_liquidsoap', (req, res) => {
 		if (info) {
 			const { spawn } = require( 'child_process' );
 			const kill = spawn( 'kill', [ '-9', info.pid ] );
-			kill.stdout.on( 'data', data => {
+			kill.stdout.on('data', data => {
 				console.log( `stdout: ${data}` );
-			} );
+			});
 
-			kill.stderr.on( 'data', data => {
+			kill.stderr.on('data', data => {
 				console.log( `stderr: ${data}` );
-			} );
+			});
 
-			kill.on( 'close', code => {
+			kill.on('close', code => {
 				console.log( `child process exited with code ${code}` );
-			} );
-			res.json({ success: 'LIQUIDSOAP_KILLED' });
-		} else {
-			res.json({ error: 'LIQUIDSOAP_UNAVAILABLE' });
+				draining = false;
+			});
 		}
 	});
+}
+
+app.get('/stop_liquidsoap', (req, res) => {
+	if (!draining) {
+		draining = setTimeout(() => {
+			killLiquidsoap();
+		}, TIME_UNTIL_DESTROY);
+		res.json({ success: `DESTROYING IN ${ TIME_UNTIL_DESTROY } SECONDS` });
+	} else {
+		const timeLeft = Math.ceil((draining._idleStart + draining._idleTimeout - Date.now()) / 1000);
+		res.json({ success: `DESTROYING IN ${ timeLeft } SECONDS` });
+	}
+});
+
+app.get('/forcestop_liquidsoap', (req, res) => {
+	killLiquidsoap();
+});
+
+app.get('/time_til_destroy', (req, res) => {
+	const timeLeft = Math.ceil((draining._idleStart + draining._idleTimeout - Date.now()) / 1000);
+	res.json({ error: `DESTROYING IN ${ timeLeft } SECONDS` });
 });
 
 app.post('/start', (req, res) => {
-	const connection = new Telnet();
+	if (!draining) {
+		const connection = new Telnet();
 
-	const params = {
-			host: 'localhost',
-			port: 1234,
-			shellPrompt: '',
-			negotiationMandatory: false,
-			timeout: 1500,
-	};
+		const params = {
+				host: 'localhost',
+				port: 1234,
+				shellPrompt: '',
+				negotiationMandatory: false,
+				timeout: 1500,
+		};
 
-	connection.connect(params)
-	.then(() => {
-			connection.exec(`sources.add ${ req.body.stream.private}-${ req.body.stream.public }`)
-			.then((response) => {
-					if (!timeout) {
-							res.json('Testing initiated');
-					}
-			});
-	}, (error) => {
-		return res.status(409).json({ error });
-	});
+		connection.connect(params)
+		.then(() => {
+				connection.exec(`sources.add ${ req.body.stream.private}-${ req.body.stream.public }`)
+				.then((response) => {
+						if (!timeout) {
+								res.json({ success: 'Transcoding started' });
+						}
+				});
+		}, (error) => {
+			return res.status(409).json({ error });
+		});
+	} else {
+		const timeLeft = Math.ceil((draining._idleStart + draining._idleTimeout - Date.now()) / 1000);
+		res.json({ error: `DESTROYING IN ${ timeLeft } SECONDS` });
+	}
 });
 
 app.post('/stop', (req, res) => {
@@ -120,7 +145,7 @@ app.post('/stop', (req, res) => {
 			.then((response) => {
 					console.log('TESTING SET: ', response);
 					if (!timeout) {
-							res.json('Testing initiated');
+							res.json('Transcoder stopped');
 					}
 			});
 	}, (error) => {
