@@ -41,13 +41,13 @@ app.get('/start_liquidsoap', (req, res) => {
 			start.stdout.on( 'data', data => {
 				console.log( `stdout: ${data}` );
 			} );
-			
+
 			start.stderr.on( 'data', data => {
-					console.log( `stderr: ${data}` );
+				console.log( `stderr: ${data}` );
 			} );
-			
+
 			start.on( 'close', code => {
-					console.log( `child process exited with code ${code}` );
+				console.log( `child process exited with code ${code}` );
 			} );
 			res.json({ success: 'LIQUIDSOAP_STARTED' });
 		}
@@ -66,13 +66,13 @@ app.get('/stop_liquidsoap', (req, res) => {
 			kill.stdout.on( 'data', data => {
 				console.log( `stdout: ${data}` );
 			} );
-			
+
 			kill.stderr.on( 'data', data => {
-					console.log( `stderr: ${data}` );
+				console.log( `stderr: ${data}` );
 			} );
-			
+
 			kill.on( 'close', code => {
-					console.log( `child process exited with code ${code}` );
+				console.log( `child process exited with code ${code}` );
 			} );
 			res.json({ success: 'LIQUIDSOAP_KILLED' });
 		} else {
