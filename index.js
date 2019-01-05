@@ -27,7 +27,7 @@ app.get('/health', (req, res) => {
 	});
 });
 
-app.get('/start_transcoder', (req, res) => {
+app.get('/start_liquidsoap', (req, res) => {
 	psList().then(data => {
 		const info = data.find(process => {
 			return (process.cmd === './liquidsoap transcoder.liq' && process.name === 'liquidsoap');
@@ -54,7 +54,7 @@ app.get('/start_transcoder', (req, res) => {
 	});
 });
 
-app.get('/stop_transcoder', (req, res) => {
+app.get('/stop_liquidsoap', (req, res) => {
 	psList().then(data => {
 		const info = data.find(process => {
 			return (process.cmd === './liquidsoap transcoder.liq' && process.name === 'liquidsoap');
