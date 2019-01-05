@@ -80,6 +80,14 @@ function killLiquidsoap() {
 	});
 }
 
+function getTimeLeft() {
+	if (drainingStart) {
+		return (TIME_UNTIL_DESTROY - Date.now() - drainingStart) / 1000;
+	} else {
+		return '0';
+	}
+}
+
 app.get('/stop_liquidsoap', (req, res) => {
 	if (!draining) {
 		drainingStart = Date.now();
@@ -88,8 +96,7 @@ app.get('/stop_liquidsoap', (req, res) => {
 		}, TIME_UNTIL_DESTROY);
 		res.json({ success: `DESTROYING IN ${ TIME_UNTIL_DESTROY } SECONDS` });
 	} else {
-		const timeLeft = (Date.now() - drainingStart) / 1000;
-		res.json({ success: `DESTROYING IN ${ timeLeft } SECONDS` });
+		res.json({ success: `DESTROYING IN ${ getTimeLeft() } SECONDS` });
 	}
 });
 
@@ -98,8 +105,7 @@ app.get('/forcestop_liquidsoap', (req, res) => {
 });
 
 app.get('/time_til_destroy', (req, res) => {
-	const timeLeft = (Date.now() - drainingStart) / 1000;
-	res.json({ error: `DESTROYING IN ${ timeLeft } SECONDS` });
+	res.json({ success: `DESTROYING IN ${ getTimeLeft() } SECONDS` });
 });
 
 app.post('/start', (req, res) => {
@@ -126,8 +132,7 @@ app.post('/start', (req, res) => {
 			return res.status(409).json({ error });
 		});
 	} else {
-		const timeLeft = (Date.now() - drainingStart) / 1000;
-		res.json({ error: `DESTROYING IN ${ timeLeft } SECONDS` });
+		res.json({ success: `DESTROYING IN ${ getTimeLeft() } SECONDS` });
 	}
 });
 
