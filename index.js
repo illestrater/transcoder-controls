@@ -27,6 +27,60 @@ app.get('/health', (req, res) => {
 	});
 });
 
+app.get('/start_transcoder', (req, res) => {
+	psList().then(data => {
+		const info = data.find(process => {
+			return (process.cmd === './liquidsoap transcoder.liq' && process.name === 'liquidsoap');
+		});
+
+		if (info) {
+			res.json({ error: 'LIQUIDSOAP_EXISTS' });
+		} else {
+			const { spawn } = require( 'child_process' );
+			const kill = spawn( '/opt/transcoder-health-checker-/liquidsoap', [ 'transcoder.liq' ] );
+			kill.stdout.on( 'data', data => {
+				console.log( `stdout: ${data}` );
+			} );
+			
+			kill.stderr.on( 'data', data => {
+					console.log( `stderr: ${data}` );
+			} );
+			
+			kill.on( 'close', code => {
+					console.log( `child process exited with code ${code}` );
+			} );
+			res.json({ success: 'LIQUIDSOAP_STARTED' });
+		}
+	});
+});
+
+app.get('/stop_transcoder', (req, res) => {
+	psList().then(data => {
+		const info = data.find(process => {
+			return (process.cmd === './liquidsoap transcoder.liq' && process.name === 'liquidsoap');
+		});
+
+		if (info) {
+			const { spawn } = require( 'child_process' );
+			const kill = spawn( 'kill', [ '-9', info.pid ] );
+			kill.stdout.on( 'data', data => {
+				console.log( `stdout: ${data}` );
+			} );
+			
+			kill.stderr.on( 'data', data => {
+					console.log( `stderr: ${data}` );
+			} );
+			
+			kill.on( 'close', code => {
+					console.log( `child process exited with code ${code}` );
+			} );
+			res.json({ success: 'LIQUIDSOAP_KILLED' });
+		} else {
+			res.json({ error: 'LIQUIDSOAP_UNAVAILABLE' });
+		}
+	});
+});
+
 app.post('/start', (req, res) => {
 	const connection = new Telnet();
 
@@ -40,7 +94,7 @@ app.post('/start', (req, res) => {
 
 	connection.connect(params)
 	.then(() => {
-			connection.exec(`sources.add ${ req.body.stream.public }`)
+			connection.exec(`sources.add ${ req.body.stream.private}-${ req.body.stream.public }`)
 			.then((response) => {
 					if (!timeout) {
 							res.json('Testing initiated');
