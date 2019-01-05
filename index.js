@@ -73,9 +73,10 @@ function killLiquidsoap() {
 
 			kill.on('close', code => {
 				console.log( `child process exited with code ${code}` );
-				drainingStart = null;
-				draining = false;
 			});
+
+			drainingStart = null;
+			draining = false;
 		}
 	});
 }
@@ -89,7 +90,13 @@ function getTimeLeft() {
 }
 
 app.get('/stop_liquidsoap', (req, res) => {
-	if (!draining) {
+	const info = data.find(process => {
+		return (process.cmd === '/opt/transcoder-health-checker/liquidsoap /opt/transcoder-health-checker/transcoder.liq' && process.name === 'liquidsoap');
+	});
+
+	if (!info) {
+		res.json({ error: 'LIQUIDSOAP UNAVAILABLE' });
+	} else if (!draining) {
 		drainingStart = Date.now();
 		draining = setTimeout(() => {
 			killLiquidsoap();
