@@ -5,4 +5,5 @@ build
 *.log*
 _nogit
 todo.md
+process.pid
 *.tar.gz*
