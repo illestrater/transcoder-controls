@@ -1,11 +1,9 @@
-// const monitor = require('os-monitor');
 const psList = require('ps-list');
 const Telnet = require('telnet-client');
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-
 
 const app = express();
 app.use(cors());
