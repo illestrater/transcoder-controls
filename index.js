@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const TIME_UNTIL_DESTROY = 60000 * 60 * 3;
+let TIME_TIL_RESET = 60000 * 60 * 3;
 let drainingStart;
 let draining = false;
 
@@ -83,13 +83,14 @@ function killLiquidsoap() {
 
 function getTimeLeft() {
 	if (drainingStart) {
-		return (TIME_UNTIL_DESTROY - (Date.now() - drainingStart)) / 1000;
+		return (TIME_TIL_RESET - (Date.now() - drainingStart)) / 1000;
 	} else {
 		return '0';
 	}
 }
 
-app.get('/stop_liquidsoap', (req, res) => {
+app.post('/stop_liquidsoap', (req, res) => {
+	TIME_TIL_RESET = req.body.ttr;
 	psList().then(data => {
 		const info = data.find(process => {
 			return (process.cmd === '/opt/transcoder-controls/liquidsoap /opt/transcoder-controls/transcoder.liq' && process.name === 'liquidsoap');
@@ -101,8 +102,8 @@ app.get('/stop_liquidsoap', (req, res) => {
 			drainingStart = Date.now();
 			draining = setTimeout(() => {
 				killLiquidsoap();
-			}, TIME_UNTIL_DESTROY);
-			res.json({ success: `DESTROYING IN ${ TIME_UNTIL_DESTROY } SECONDS` });
+			}, TIME_TIL_RESET);
+			res.json({ success: `DESTROYING IN ${ TIME_TIL_RESET } SECONDS` });
 		} else {
 			res.json({ success: `DESTROYING IN ${ getTimeLeft() } SECONDS` });
 		}
@@ -111,38 +112,33 @@ app.get('/stop_liquidsoap', (req, res) => {
 
 app.get('/forcestop_liquidsoap', (req, res) => {
 	killLiquidsoap();
+	res.json({ success: `LIQUIDSOAP STOPPED` });
 });
 
-app.get('/time_til_destroy', (req, res) => {
+app.get('/time_til_reset', (req, res) => {
 	res.json({ success: `DESTROYING IN ${ getTimeLeft() } SECONDS` });
 });
 
 app.post('/start', (req, res) => {
-	if (!draining) {
-		const connection = new Telnet();
+	const connection = new Telnet();
 
-		const params = {
-				host: 'localhost',
-				port: 1234,
-				shellPrompt: '',
-				negotiationMandatory: false,
-				timeout: 1500,
-		};
+	const params = {
+			host: 'localhost',
+			port: 1234,
+			shellPrompt: '',
+			negotiationMandatory: false,
+			timeout: 1500,
+	};
 
-		connection.connect(params)
-		.then(() => {
-				connection.exec(`sources.add ${ req.body.stream.private}-${ req.body.stream.public }`)
-				.then((response) => {
-						if (!timeout) {
-								res.json({ success: 'Transcoding started' });
-						}
-				});
-		}, (error) => {
-			return res.status(409).json({ error });
-		});
-	} else {
-		res.json({ success: `DESTROYING IN ${ getTimeLeft() } SECONDS` });
-	}
+	connection.connect(params)
+	.then(() => {
+			connection.exec(`sources.add ${ req.body.stream.private}-${ req.body.stream.public }`)
+			.then((response) => {
+				res.json({ success: 'Transcoding started' });
+			});
+	}, (error) => {
+		return res.status(409).json({ error });
+	});
 });
 
 app.post('/stop', (req, res) => {
@@ -160,10 +156,7 @@ app.post('/stop', (req, res) => {
 	.then(() => {
 			connection.exec(`sources.remove ${ req.body.stream.public }`)
 			.then((response) => {
-					console.log('TESTING SET: ', response);
-					if (!timeout) {
-							res.json('Transcoder stopped');
-					}
+				res.json('Transcoder stopped');
 			});
 	}, (error) => {
 		return res.status(409).json({ error });
