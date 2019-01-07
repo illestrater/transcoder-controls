@@ -6,18 +6,6 @@ set("init.daemon.pidfile.path","/opt/transcoder-controls/process.pid")
 
 dyn_sources = ref []
 
-def list.remove_assoc(label, l) =
-  def f(result, element) =
-    current_label = fst(element)
-    if current_label == label then
-      result
-    else
-      list.add(element,result)
-    end
-  end
-  list.fold(f,[],l)
-end
-
 def add_source(uri) =
   keys = string.split(separator="-", uri)
   private = list.hd(default="null",keys)
