@@ -1,5 +1,6 @@
 require('dotenv').config();
 const psList = require('ps-list');
+const fs = require('fs');
 const Telnet = require('telnet-client');
 const express = require('express');
 const http = require('http');
