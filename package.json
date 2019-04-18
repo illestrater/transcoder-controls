@@ -24,8 +24,10 @@
     "dotenv": "^6.2.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",
+    "fs": "0.0.1-security",
     "http": "0.0.0",
     "jsonwebtoken": "^8.0.1",
-    "os-monitor": "^1.0.6"
+    "os-monitor": "^1.0.6",
+    "ps-list": "^6.3.0"
   }
 }
