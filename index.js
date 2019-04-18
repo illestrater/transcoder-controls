@@ -1,3 +1,4 @@
+require('dotenv').config();
 const psList = require('ps-list');
 const Telnet = require('telnet-client');
 const express = require('express');
@@ -5,6 +6,8 @@ const http = require('http');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+
+const ENV = process.env;
 
 const vaultOptions = {
   apiVersion: 'v1',
