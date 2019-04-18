@@ -10,11 +10,11 @@ def add_source(uri) =
   keys = string.split(separator="-", uri)
   private = list.hd(default="null",keys)
   public = list.hd(default="null",list.tl(keys))
-  url = mksafe(audio_to_stereo(input.http("http://stream.cue.dj:1337/#{private}")))
+  url = mksafe(audio_to_stereo(input.http("http://104.248.123.74:1337/#{private}")))
   source = output.icecast(
     %mp3(bitrate=128),
     mount="#{public}",
-    host="transcoded.cue.dj",
+    host="178.128.149.203",
     port=1337,
     password="willpaycryptoifhacked",
     fallible=true
