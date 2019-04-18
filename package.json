@@ -27,6 +27,7 @@
     "fs": "0.0.1-security",
     "http": "0.0.0",
     "jsonwebtoken": "^8.0.1",
+    "node-vault": "^0.9.6",
     "os-monitor": "^1.0.6",
     "ps-list": "^6.3.0"
   }
