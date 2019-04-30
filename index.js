@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, './.env') });
 const psList = require('ps-list');
 const fs = require('fs');
 const Telnet = require('telnet-client');
